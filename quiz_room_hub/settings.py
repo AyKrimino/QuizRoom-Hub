@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,8 +26,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # External apps
+    'rest_framework',
     # Created apps
     'authuser',
+    'classroom',
 ]
 
 MIDDLEWARE = [
@@ -110,3 +113,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # User model configurations
 AUTH_USER_MODEL = 'authuser.User'
+
+# Media config
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

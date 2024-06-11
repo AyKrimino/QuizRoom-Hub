@@ -1,39 +1,8 @@
-from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-
-class UserManager(BaseUserManager):
-    """
-    Custom user manager that allows you to create users where email is the unique identifiers
-    for authentication instead of usernames.
-    """
-
-    def create_user(self, email, password, **extra_fields):
-        """
-        Creates and saves a new user with the given email and password.
-        """
-        if not email:
-            raise ValueError(_("Users must have an email address"))
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, email, password, **extra_fields):
-        """
-        Creates and saves a new superuser with the given email and password.
-        """
-        extra_fields.setdefault("is_staff", True)
-        extra_fields.setdefault("is_superuser", True)
-        extra_fields.setdefault("is_active", True)
-
-        if not extra_fields.get("is_staff"):
-            raise ValueError(_("Superuser must have is_staff=True."))
-        if not extra_fields.get("is_superuser"):
-            raise ValueError(_("Superuser must have is_superuser=True."))
-        return self.create_user(email, password, **extra_fields)
+from .managers import UserManager
 
 
 class User(AbstractUser):
@@ -41,10 +10,10 @@ class User(AbstractUser):
     email = models.EmailField(_("Email Address"), unique=True)
     is_teacher = models.BooleanField(_("Teacher Status"), default=False)
 
-    USERNAME_FIELD = email
+    USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
-    objects = UserManager
+    objects = UserManager()
 
     def __str__(self):
         return self.email
