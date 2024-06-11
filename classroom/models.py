@@ -1,9 +1,8 @@
-from django.db import models
-from django.utils.translation import gettext_lazy as _
-
 import uuid
 
-from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class TeacherProfile(models.Model):
@@ -12,7 +11,7 @@ class TeacherProfile(models.Model):
         verbose_name_plural = _("Teacher Profiles")
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_("User"),
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, verbose_name=_("User"),
                                 related_name="teacher_profile")
     bio = models.TextField(_("Bio"), blank=True, null=True)
     date_of_birth = models.DateField(_("Date of Birth"), blank=True, null=True)
@@ -29,7 +28,7 @@ class StudentProfile(models.Model):
         verbose_name_plural = _("Student Profiles")
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_("User"),
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, verbose_name=_("User"),
                                 related_name="student_profile")
     bio = models.TextField(_("Bio"), blank=True, null=True)
     date_of_birth = models.DateField(_("Date of Birth"), blank=True, null=True)
