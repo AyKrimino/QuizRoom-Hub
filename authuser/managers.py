@@ -8,6 +8,8 @@ class UserManager(BaseUserManager):
     for authentication instead of usernames.
     """
 
+    use_in_migration = True
+
     def create_user(self, email, password=None, **extra_fields):
         """
         Creates and saves a new user with the given email and password.
