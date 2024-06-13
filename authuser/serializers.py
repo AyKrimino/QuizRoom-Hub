@@ -51,6 +51,8 @@ class LoginUserSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         user = authenticate(**validated_data)
-        if user and user.is_active:
-            return user
-        return serializers.ValidationError(_("Invalid credentials."))
+        if user is None:
+            raise serializers.ValidationError(_("Invalid credentials."))
+        if not user.is_active:
+            raise serializers.ValidationError(_("Inactive user account."))
+        return user
