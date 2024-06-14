@@ -85,3 +85,36 @@ class LoginUserViewTests(TestSetup):
         user.save()
         response = self.client.post(self.login_url, self.user_data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutUserViewTests(TestSetup):
+    def test_logout_user_successfully(self):
+        # register user
+        self.client.post(self.register_url, {**self.user_data, "password2": self.user_data["password"]})
+        # login the user
+        response_login = self.client.post(self.login_url, self.user_data)
+        refresh_token = response_login.data["tokens"]["refresh"]
+        access_token = response_login.data["tokens"]["access"]
+        response_logout = self.client.post(self.logout_url, {"refresh": refresh_token},
+                                           headers={"Authorization": f"Bearer {access_token}"})
+        self.assertEqual(response_logout.status_code, status.HTTP_205_RESET_CONTENT)
+
+    def test_logout_user_without_refresh_token(self):
+        # register user
+        self.client.post(self.register_url, {**self.user_data, "password2": self.user_data["password"]})
+        # login the user
+        response_login = self.client.post(self.login_url, self.user_data)
+        access_token = response_login.data["tokens"]["access"]
+        response_logout = self.client.post(self.logout_url, headers={"Authorization": f"Bearer {access_token}"})
+        self.assertEqual(response_logout.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_logout_user_without_authorization(self):
+        # register user
+        self.client.post(self.register_url, {**self.user_data, "password2": self.user_data["password"]})
+        # login the user
+        response_login = self.client.post(self.login_url, self.user_data)
+        refresh_token = response_login.data["tokens"]["refresh"]
+        response_logout = self.client.post(self.logout_url, {"refresh": refresh_token})
+        self.assertEqual(response_logout.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(str(response_logout.data["detail"]), "Authentication credentials were not provided.")
+        self.assertFalse(response_logout.has_header("Authorization"))
