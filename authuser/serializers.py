@@ -56,3 +56,7 @@ class LoginUserSerializer(serializers.Serializer):
         if not user.is_active:
             raise serializers.ValidationError(_("Inactive user account."))
         return user
+
+
+class ErrorResponseSerializer(serializers.Serializer):
+    detail = serializers.CharField()

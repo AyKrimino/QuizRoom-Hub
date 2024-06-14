@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     # External apps
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
+    "drf_spectacular",
     # Created apps
     "authuser",
     "classroom",
@@ -134,6 +135,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 # Simple JWT Configurations
@@ -174,4 +176,13 @@ SIMPLE_JWT = {
     "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
+}
+
+# drf_spectacular configurations
+SPECTACULAR_SETTINGS = {
+    "title": "QuizRoom Hub API",
+    "description": "QuizRoom Hub is a comprehensive educational platform inspired by Google Classroom. It allows "
+                   "teachers and students to sign up, create and join classrooms, post courses and quizzes, "
+                   "and engage in a rich interactive learning environment. The platform is built using Python, "
+                   "Django, and Django Rest Framework, with a MySQL database.",
 }
