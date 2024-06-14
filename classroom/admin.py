@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import TeacherProfile, StudentProfile
+from .models import TeacherProfile, StudentProfile, StudentClassroom, StudentQuiz, Quiz, Classroom, CoursePost, Question, Answer, Comment
 
 
 class TeacherProfileAdmin(admin.ModelAdmin):
@@ -19,3 +19,11 @@ class StudentProfileAdmin(admin.ModelAdmin):
 
 admin.site.register(TeacherProfile, TeacherProfileAdmin)
 admin.site.register(StudentProfile, StudentProfileAdmin)
+admin.site.register(Classroom)
+admin.site.register(StudentClassroom)
+admin.site.register(CoursePost)
+admin.site.register(Comment)
+admin.site.register(Quiz)
+admin.site.register(Question)
+admin.site.register(Answer)
+admin.site.register(StudentQuiz)
