@@ -32,7 +32,11 @@ INSTALLED_APPS = [
     "drf_spectacular",
     # Created apps
     "authuser",
+    "account",
     "classroom",
+    "post",
+    "quiz",
+
 ]
 
 MIDDLEWARE = [
