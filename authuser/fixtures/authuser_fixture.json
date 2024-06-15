@@ -1,0 +1,38 @@
+[
+  {
+    "model": "authuser.user",
+    "pk": 1,
+    "fields": {
+      "email": "teacher1@example.com",
+      "password": "pbkdf2_sha256$260000$wkcHq3SPHXlb$5jS5Z8eRGc4lEnwq6NpeT4qRvTgS0Hgk5L1kp/lzHyM=",
+      "is_teacher": true
+    }
+  },
+  {
+    "model": "authuser.user",
+    "pk": 2,
+    "fields": {
+      "email": "student1@example.com",
+      "password": "pbkdf2_sha256$260000$wkcHq3SPHXlb$5jS5Z8eRGc4lEnwq6NpeT4qRvTgS0Hgk5L1kp/lzHyM=",
+      "is_teacher": false
+    }
+  },
+  {
+    "model": "authuser.user",
+    "pk": 3,
+    "fields": {
+      "email": "teacher2@example.com",
+      "password": "pbkdf2_sha256$260000$wkcHq3SPHXlb$5jS5Z8eRGc4lEnwq6NpeT4qRvTgS0Hgk5L1kp/lzHyM=",
+      "is_teacher": true
+    }
+  },
+  {
+    "model": "authuser.user",
+    "pk": 4,
+    "fields": {
+      "email": "student2@example.com",
+      "password": "pbkdf2_sha256$260000$wkcHq3SPHXlb$5jS5Z8eRGc4lEnwq6NpeT4qRvTgS0Hgk5L1kp/lzHyM=",
+      "is_teacher": false
+    }
+  }
+]

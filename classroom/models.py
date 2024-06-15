@@ -60,10 +60,10 @@ class Classroom(models.Model):
 
 class StudentClassroom(models.Model):
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, verbose_name=_("Student"))
-    classroom = models.ForeignKey(TeacherProfile, on_delete=models.CASCADE, verbose_name=_("Classroom"))
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, verbose_name=_("Classroom"))
     date_joined = models.DateTimeField(_("Date joined"), auto_now_add=True, blank=True)
 
-    class Meat:
+    class Meta:
         verbose_name = "Student Classroom relation"
         verbose_name_plural = "Student Classroom relations"
         ordering = ("-date_joined",)
@@ -137,7 +137,7 @@ class Question(models.Model):
     description = models.TextField(_("Question description"))
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="questions", verbose_name=_("Quiz"))
 
-    class Meat:
+    class Meta:
         verbose_name = _("Question")
         verbose_name_plural = _("Questions")
 
@@ -151,9 +151,25 @@ class Answer(models.Model):
     is_valid = models.BooleanField(_("Answer validity"))
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="answers", verbose_name=_("Question"))
 
+    class Meta:
+        verbose_name = _("Answer")
+        verbose_name_plural = _("Answers")
+
+    def __str__(self):
+        return f"{self.description[:10]}"
+
 
 class StudentQuiz(models.Model):
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name="submitted_quizzes",
                                 verbose_name=_("Student"))
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="student_answers", verbose_name=_("Quiz"))
     mark = models.DecimalField(_("Mark"), max_digits=4, decimal_places=2)
+    answered_at = models.DateTimeField(_("Answered at"), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("Student quiz relation")
+        verbose_name_plural = _("Student quiz relations")
+        ordering = ("-mark", "-answered_at",)
+
+    def __str__(self):
+        return f"{str(self.student)}-{str(self.quiz)} -> {self.mark}"
