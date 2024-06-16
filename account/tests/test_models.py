@@ -46,7 +46,7 @@ class TeacherProfileTests(APITestCase):
     def test_creating_multiple_teacher_profiles_with_same_user(self):
         with self.assertRaises(IntegrityError) as cm:
             TeacherProfile.objects.create(user=self.user)
-        self.assertEqual(str(cm.exception), "UNIQUE constraint failed: classroom_teacherprofile.user_id")
+        self.assertEqual(str(cm.exception), "UNIQUE constraint failed: account_teacherprofile.user_id")
 
     def test_teacher_profile_string_representation(self):
         teacher_profile = TeacherProfile.objects.get(user=self.user)
@@ -88,7 +88,7 @@ class StudentProfileTests(APITestCase):
     def test_creating_multiple_student_profiles_with_same_user(self):
         with self.assertRaises(IntegrityError) as cm:
             StudentProfile.objects.create(user=self.user)
-        self.assertEqual(str(cm.exception), "UNIQUE constraint failed: classroom_studentprofile.user_id")
+        self.assertEqual(str(cm.exception), "UNIQUE constraint failed: account_studentprofile.user_id")
 
     def test_student_profile_string_representation(self):
         student_profile = StudentProfile.objects.get(user=self.user)
