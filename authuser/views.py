@@ -6,6 +6,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from datetime import datetime
+from datetime import timezone
+
 from .serializers import RegisterUserSerializer, LoginUserSerializer, ErrorResponseSerializer
 
 User = get_user_model()
@@ -43,6 +46,8 @@ class LoginUserView(APIView):
         serializer = LoginUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+        user.last_login = datetime.now(tz=timezone.utc)
+        user.save()
         token = RefreshToken.for_user(user)
         data = serializer.data
         data["tokens"] = {"refresh": str(token), "access": str(token.access_token)}

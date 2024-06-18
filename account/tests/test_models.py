@@ -37,7 +37,7 @@ class TeacherProfileTests(APITestCase):
         self.assertEqual(teacher_profile.date_of_birth, self.birthday)
         self.assertEqual(teacher_profile.years_of_experience, self.experience)
 
-    def test_student_profile_deletion_on_user_deletion(self):
+    def test_student_profile_deletion_when_user_deleted(self):
         user_id = self.user.id
         self.user.delete()
         with self.assertRaises(TeacherProfile.DoesNotExist):
@@ -70,7 +70,7 @@ class StudentProfileTests(APITestCase):
         self.assertIsNotNone(student_profile)
         self.assertEqual(student_profile.user.id, self.user.id)
 
-    def test_student_profile_deletion_on_user_deletion(self):
+    def test_student_profile_deletion_when_user_deleted(self):
         user_id = self.user.id
         self.user.delete()
         with self.assertRaises(StudentProfile.DoesNotExist):
