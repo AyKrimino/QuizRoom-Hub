@@ -1,11 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.http import Http404
+from django_filters import rest_framework as filters
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .filters import TeacherProfileFilter, StudentProfileFilter
 from .models import TeacherProfile, StudentProfile
 from .permissions import IsProfileOwnerOrReadOnly
 from .serializers import TeacherProfileSerializer, StudentProfileSerializer
@@ -16,7 +18,9 @@ User = get_user_model()
 class TeacherProfileListAPIView(ListAPIView):
     queryset = TeacherProfile.objects.all()
     serializer_class = TeacherProfileSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated, IsAdminUser, ]
+    filter_backends = [filters.DjangoFilterBackend, ]
+    filterset_class = TeacherProfileFilter
 
 
 class TeacherProfileRetrieveUpdateDestroyAPIView(APIView):
@@ -56,6 +60,8 @@ class StudentProfileListAPIView(ListAPIView):
     queryset = StudentProfile.objects.all()
     serializer_class = StudentProfileSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
+    filter_backends = [filters.DjangoFilterBackend, ]
+    filterset_class = StudentProfileFilter
 
 
 class StudentProfileRetrieveUpdateDestroyAPIView(APIView):

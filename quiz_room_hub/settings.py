@@ -30,13 +30,13 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
     "drf_spectacular",
+    "django_filters",
     # Created apps
     "authuser",
     "account",
     "classroom",
     "post",
     "quiz",
-
 ]
 
 MIDDLEWARE = [
