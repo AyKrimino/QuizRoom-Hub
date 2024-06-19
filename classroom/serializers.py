@@ -3,7 +3,7 @@ from rest_framework import serializers
 from account.serializers import TeacherProfileSerializer, StudentProfileSerializer
 from .models import Classroom, StudentClassroom
 
-# removing profile_picture field form TeacherProfileSerializer and StudentProfileSerializer
+# removing profile_picture field from TeacherProfileSerializer and StudentProfileSerializer
 TeacherProfileSerializer.Meta.fields = TeacherProfileSerializer.Meta.fields[:-1]
 StudentProfileSerializer.Meta.fields = StudentProfileSerializer.Meta.fields[:-1]
 
