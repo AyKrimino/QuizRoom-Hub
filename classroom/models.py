@@ -8,7 +8,7 @@ from account.models import TeacherProfile, StudentProfile
 
 class Classroom(models.Model):
     id = models.UUIDField(_("Classroom id"), primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(_("Classroom name"), max_length=200)
+    name = models.CharField(_("Classroom name"), max_length=200, blank=False, null=False)
     teacher = models.ForeignKey(TeacherProfile, on_delete=models.CASCADE, related_name="classrooms",
                                 verbose_name=_("Teacher"))
     created_at = models.DateTimeField(_("Classroom created at"), auto_now_add=True)
@@ -20,6 +20,11 @@ class Classroom(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.name:
+            raise ValueError("The name field cannot be blank or null.")
+        super().save(*args, **kwargs)
 
 
 class StudentClassroom(models.Model):
