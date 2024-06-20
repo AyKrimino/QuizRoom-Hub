@@ -7,7 +7,8 @@ from rest_framework.views import APIView
 
 from account.models import StudentProfile, TeacherProfile
 from .models import Classroom, StudentClassroom
-from .permissions import IsClassroomMember, IsClassroomOwner, IsTeacher, IsStudent
+from .permissions import (IsClassroomMember, IsClassroomOwner, IsTeacher, IsClassroomOwnerOrStudent,
+                          IsClassroomOwnerOrClassroomStudentMember, )
 from .serializers import ClassroomSerializer, StudentClassroomSerializer
 
 
@@ -66,7 +67,7 @@ class StudentClassroomListAPIView(ListAPIView):
 
 
 class StudentClassroomCreateAPIView(APIView):
-    permission_classes = [IsAuthenticated, IsClassroomOwner | IsStudent]
+    permission_classes = [IsAuthenticated, IsClassroomOwnerOrStudent]
 
     def post(self, request, *args, **kwargs):
         serializer = StudentClassroomSerializer(data=request.data)
@@ -80,7 +81,7 @@ class StudentClassroomRetrieveDestroyAPIView(APIView):
         if self.request.method in SAFE_METHODS:
             self.permission_classes = [IsAuthenticated, IsClassroomMember]
         else:
-            self.permission_classes = [IsAuthenticated, IsClassroomOwner | (IsClassroomMember & IsStudent)]
+            self.permission_classes = [IsAuthenticated, IsClassroomOwnerOrClassroomStudentMember]
         return super().get_permissions()
 
     def get_object(self, student_id, classroom_id):
@@ -98,6 +99,6 @@ class StudentClassroomRetrieveDestroyAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, student_id, classroom_id, *args, **kwargs):
-        student_classroom = self.get_object(student_id, classroom_id=)
+        student_classroom = self.get_object(student_id, classroom_id)
         student_classroom.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
