@@ -83,15 +83,13 @@ class IsStudent(BasePermission):
     - `StudentProfile`: A model representing the profile of a student, with a one-to-one link to the user.
     """
 
-    def has_object_permission(self, request, view, obj):
+    def has_permission(self, request, view):
         """
-        Check if the request user has permission to access the object as a student.
+        Check if the request user has permission to access the view as a student.
 
         Args:
             request: The HTTP request object.
             view: The view that is being accessed.
-            obj: The object that is being accessed.
-
         Returns:
             bool: True if the user has a `StudentProfile`, False otherwise.
         """
@@ -109,14 +107,13 @@ class IsTeacher(BasePermission):
     - `TeacherProfile`: A model representing the profile of a teacher, with a one-to-one link to the user.
     """
 
-    def has_object_permission(self, request, view, obj):
+    def has_permission(self, request, view):
         """
-        Check if the request user has permission to access the object as a teacher.
+        Check if the request user has permission to access the view as a teacher.
 
         Args:
             request: The HTTP request object.
             view: The view that is being accessed.
-            obj: The object that is being accessed.
 
         Returns:
             bool: True if the user has a `TeacherProfile`, False otherwise.
@@ -125,5 +122,4 @@ class IsTeacher(BasePermission):
         return TeacherProfile.objects.filter(user=request.user).exists()
 
 
-IsClassroomOwnerOrStudent = IsClassroomOwner | IsStudent
-IsClassroomOwnerOrClassroomStudentMember = IsClassroomOwner | (IsClassroomMember & IsStudent)
+IsStudentOrTeacher = IsStudent | IsTeacher
