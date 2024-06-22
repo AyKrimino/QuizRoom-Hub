@@ -4,13 +4,19 @@ from account.models import StudentProfile, TeacherProfile
 from account.serializers import TeacherProfileSerializer, StudentProfileSerializer
 from .models import Classroom, StudentClassroom
 
-# removing profile_picture field from TeacherProfileSerializer and StudentProfileSerializer
-TeacherProfileSerializer.Meta.fields = TeacherProfileSerializer.Meta.fields[:-1]
-StudentProfileSerializer.Meta.fields = StudentProfileSerializer.Meta.fields[:-1]
+
+class TeacherProfileSerializerForClassroom(TeacherProfileSerializer):
+    class Meta(TeacherProfileSerializer.Meta):
+        fields = [field for field in TeacherProfileSerializer.Meta.fields if field != 'profile_picture']
+
+
+class StudentProfileSerializerForClassroom(StudentProfileSerializer):
+    class Meta(StudentProfileSerializer.Meta):
+        fields = [field for field in StudentProfileSerializer.Meta.fields if field != 'profile_picture']
 
 
 class ClassroomSerializer(serializers.ModelSerializer):
-    teacher = TeacherProfileSerializer(read_only=True)
+    teacher = TeacherProfileSerializerForClassroom(read_only=True)
 
     class Meta:
         model = Classroom
@@ -20,9 +26,22 @@ class ClassroomSerializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
         }
 
+    def is_valid(self, raise_exception=False):
+        self.invalid_fields = []
+        for field in self.initial_data:
+            if field not in self.fields:
+                self.invalid_fields.append(field)
+
+        if self.invalid_fields:
+            if raise_exception:
+                raise serializers.ValidationError({"invalid_fields": self.invalid_fields})
+            return False
+
+        return super().is_valid(raise_exception=raise_exception)
+
 
 class StudentClassroomSerializer(serializers.ModelSerializer):
-    student = StudentProfileSerializer(read_only=True)
+    student = StudentProfileSerializerForClassroom(read_only=True)
     classroom = ClassroomSerializer(read_only=True)
     classroom_id = serializers.UUIDField(source="classroom.id", write_only=True)
 
@@ -37,14 +56,20 @@ class StudentClassroomSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         classroom_data = validated_data.pop('classroom', None)
         classroom_id = classroom_data['id']
-        classroom = Classroom.objects.get(id=classroom_id)
+        try:
+            classroom = Classroom.objects.get(id=classroom_id)
+        except Classroom.DoesNotExist:
+            raise serializers.ValidationError("Classroom matching query does not exist.")
 
         user = self.context['request'].user
         if TeacherProfile.objects.filter(user=user).exists():
             student_id = self.context['request'].data.get('student_id')
             if not student_id:
                 raise serializers.ValidationError("student_id is required for teachers.")
-            student = StudentProfile.objects.get(id=student_id)
+            try:
+                student = StudentProfile.objects.get(id=student_id)
+            except StudentProfile.DoesNotExist:
+                raise serializers.ValidationError("StudentProfile matching query does not exist.")
         else:
             student = StudentProfile.objects.get(user=user)
 

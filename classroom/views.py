@@ -286,7 +286,7 @@ class StudentClassroomCreateAPIView(APIView):
         self.check_permissions(request)
         serializer = StudentClassroomSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        self.perform_create(serializer)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
@@ -300,6 +300,7 @@ class StudentClassroomCreateAPIView(APIView):
         - ValidationError: If the teacher tries to add a student to a classroom they do not own.
         """
         user = self.request.user
+
         if TeacherProfile.objects.filter(user=user).exists():
             classroom_id = serializer.validated_data['classroom']['id']
             teacher = TeacherProfile.objects.get(user=user)

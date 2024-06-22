@@ -55,6 +55,18 @@ class TestSetup(APITestCase):
         self.teacher2_access_token = self.login_teacher2_response.data["tokens"]["access"]
         self.teacher2_refresh_token = self.login_teacher2_response.data["tokens"]["refresh"]
 
+        # Teacher user 3
+        self.teacher3_email = self.fake.email()
+        self.teacher3_password = self.fake.password()
+        self.teacher3 = User.objects.create_user(email=self.teacher3_email, password=self.teacher3_password,
+                                                 is_teacher=True)
+        self.teacher3_profile = TeacherProfile.objects.get(user=self.teacher3)
+        self.login_teacher3_response = self.client.post(self.login_url,
+                                                        {"email": self.teacher3_email,
+                                                         "password": self.teacher3_password})
+        self.teacher3_access_token = self.login_teacher3_response.data["tokens"]["access"]
+        self.teacher3_refresh_token = self.login_teacher3_response.data["tokens"]["refresh"]
+
         # Student user
         self.student_email = self.fake.email()
         self.student_password = self.fake.password()
@@ -79,6 +91,18 @@ class TestSetup(APITestCase):
                                                          "password": self.student2_password})
         self.student2_access_token = self.login_student2_response.data["tokens"]["access"]
         self.student2_refresh_token = self.login_student2_response.data["tokens"]["refresh"]
+
+        # Student user 3
+        self.student3_email = self.fake.email()
+        self.student3_password = self.fake.password()
+        self.student3 = User.objects.create_user(email=self.student3_email, password=self.student3_password,
+                                                 is_teacher=False)
+        self.student3_profile = StudentProfile.objects.get(user=self.student3)
+        self.login_student3_response = self.client.post(self.login_url,
+                                                        {"email": self.student3_email,
+                                                         "password": self.student3_password})
+        self.student3_access_token = self.login_student3_response.data["tokens"]["access"]
+        self.student3_refresh_token = self.login_student3_response.data["tokens"]["refresh"]
 
         return super().setUp()
 
