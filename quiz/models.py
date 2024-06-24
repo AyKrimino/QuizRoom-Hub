@@ -63,6 +63,12 @@ class StudentQuiz(models.Model):
         verbose_name = _("Student quiz relation")
         verbose_name_plural = _("Student quiz relations")
         ordering = ("-mark", "-answered_at",)
+        constraints = [
+            models.UniqueConstraint(
+                fields=["student", "quiz"],
+                name="student-quiz",
+            ),
+        ]
 
     def __str__(self):
         return f"{str(self.student)}-{str(self.quiz)} -> {self.mark}"
