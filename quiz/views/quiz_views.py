@@ -47,8 +47,6 @@ class QuizRetrieveUpdateDestroyAPIView(APIView):
         self.check_permissions(request)
         quiz = self.get_object(pk)
         serializer = QuizSerializer(quiz)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, pk, *args, **kwargs):
