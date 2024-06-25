@@ -28,7 +28,7 @@ class QuestionListAPIView(ListAPIView):
         except Quiz.DoesNotExist:
             raise Http404
 
-        return Question.objects.filter(quiz=quiz)
+        return quiz.questions.all()
 
 
 class QuestionRetrieveUpdateDestroyAPIView(APIView):
