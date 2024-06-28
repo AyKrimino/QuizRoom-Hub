@@ -6,9 +6,8 @@ from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.views import APIView
 
-from classroom.models import Classroom
 from classroom.permissions import IsClassroomMember, IsStudent
-from quiz.models import StudentQuiz
+from quiz.models import StudentQuiz, Quiz
 from quiz.serializers import StudentAnswerSerializer, StudentQuizSerializer
 
 
@@ -36,14 +35,14 @@ class StudentQuizListAPIView(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        classroom_id = self.request.GET.get("classroom_id")
+        quiz_id = self.request.GET.get("quiz_id")
 
         if hasattr(user, "student_profile"):
             return StudentQuiz.objects.filter(student=user.student_profile)
         else:  # user is a teacher
             try:
-                classroom = Classroom.objects.get(id=classroom_id)
-            except Classroom.DoesNotExist:
-                raise ValidationError(_("Classroom does not exist."))
+                quiz = Quiz.objects.get(id=quiz_id)
+            except Quiz.DoesNotExist:
+                raise ValidationError(_("Quiz does not exist."))
 
-            return StudentQuiz.objects.filter(quiz__classroom=classroom)
+            return StudentQuiz.objects.filter(quiz__classroom=quiz.classroom)
