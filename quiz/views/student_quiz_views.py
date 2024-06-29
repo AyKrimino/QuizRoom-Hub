@@ -17,8 +17,18 @@ class StudentAnswerCreateAPIView(APIView):
     def post(self, request, *args, **kwargs):
         self.check_permissions(request)
 
-        serializer = StudentAnswerSerializer(data=request.data)
+        quiz_id = self.kwargs.get("quiz_id")
+        try:
+            quiz = Quiz.objects.get(id=quiz_id)
+        except Quiz.DoesNotExist:
+            raise ValidationError(_("Quiz does not exist"))
+        classroom = quiz.classroom
+        self.check_object_permissions(request, classroom)
+
+        serializer = StudentAnswerSerializer(data=request.data,
+                                             context={"quiz_id": quiz_id, "student": request.user.student_profile})
         serializer.is_valid(raise_exception=True)
+        serializer.save()
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -28,6 +38,24 @@ class StudentQuizCreateAPIView(CreateAPIView):
     serializer_class = StudentQuizSerializer
     permission_classes = [IsAuthenticated, IsClassroomMember, IsStudent]
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["student"] = self.request.user.student_profile
+        context["quiz_id"] = self.kwargs.get("quiz_id")
+        return context
+
+    def perform_create(self, serializer):
+        quiz_id = self.kwargs.get("quiz_id")
+        try:
+            quiz = Quiz.objects.get(id=quiz_id)
+        except Quiz.DoesNotExist:
+            raise ValidationError(_("Quiz does not exist."))
+        classroom = quiz.classroom
+
+        self.check_permissions(self.request)
+        self.check_object_permissions(self.request, classroom)
+        serializer.save()
+
 
 class StudentQuizListAPIView(ListAPIView):
     serializer_class = StudentQuizSerializer
@@ -35,14 +63,16 @@ class StudentQuizListAPIView(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        quiz_id = self.request.GET.get("quiz_id")
+        quiz_id = self.kwargs.get("quiz_id")
+        print(f"{quiz_id=}")
+        try:
+            quiz = Quiz.objects.get(id=quiz_id)
+        except Quiz.DoesNotExist:
+            raise ValidationError(_("Quiz does not exist."))
+        classroom = quiz.classroom
+        self.check_object_permissions(self.request, classroom)
 
         if hasattr(user, "student_profile"):
             return StudentQuiz.objects.filter(student=user.student_profile)
         else:  # user is a teacher
-            try:
-                quiz = Quiz.objects.get(id=quiz_id)
-            except Quiz.DoesNotExist:
-                raise ValidationError(_("Quiz does not exist."))
-
             return StudentQuiz.objects.filter(quiz__classroom=quiz.classroom)

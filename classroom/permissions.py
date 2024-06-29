@@ -1,7 +1,7 @@
 from rest_framework.permissions import BasePermission
 
 from account.models import StudentProfile, TeacherProfile
-from .models import StudentClassroom
+from classroom.models import StudentClassroom
 
 
 class IsClassroomMember(BasePermission):

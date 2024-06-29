@@ -52,6 +52,25 @@ class Answer(models.Model):
         return f"{self.description[:10]}"
 
 
+class StudentAnswer(models.Model):
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, verbose_name=_("Student"),
+                                related_name="student_answers")
+    answer = models.ForeignKey(Answer, on_delete=models.CASCADE, verbose_name=_("Answer"))
+
+    class Meta:
+        verbose_name = _("Student Answer")
+        verbose_name_plural = _("Student Answers")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["student", "answer"],
+                name="student-answer",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.student}-{self.answer}"
+
+
 class StudentQuiz(models.Model):
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name="submitted_quizzes",
                                 verbose_name=_("Student"))
