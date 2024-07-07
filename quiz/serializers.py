@@ -19,12 +19,19 @@ class QuizSerializer(serializers.ModelSerializer):
             "last_updated": {"read_only": True},
         }
 
-    def create(self, validated_data):
-        classroom_id = validated_data.get("classroom_id", None)
-
+    def validate(self, data):
+        classroom_id = data.get("classroom_id", None)
         if classroom_id is None:
-            raise serializers.ValidationError(_("classroom_id field is required for create action."))
+            raise serializers.ValidationError(_("classroom_id is required."))
 
+        title = data.get("title", None)
+        if title is None:
+            raise serializers.ValidationError(_("title is required."))
+
+        return data
+
+    def create(self, validated_data):
+        classroom_id = validated_data.get("classroom_id")
         try:
             classroom = Classroom.objects.get(id=classroom_id)
         except Classroom.DoesNotExist:
