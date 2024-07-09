@@ -134,9 +134,9 @@ class QuizDestroyAPIViewTests(QuizTestSetup):
 
     def test_view_with_authenticated_non_classroom_member_users(self):
         teacher_response = self.client.delete(self.quizzes_detail_url,
-                                           headers={"Authorization": f"Bearer {self.teacher_access_token}"})
+                                              headers={"Authorization": f"Bearer {self.teacher_access_token}"})
         student_response = self.client.delete(self.quizzes_detail_url,
-                                           headers={"Authorization": f"Bearer {self.student_access_token}"})
+                                              headers={"Authorization": f"Bearer {self.student_access_token}"})
         self.assertEqual(teacher_response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(student_response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(teacher_response.data["detail"], "You do not have permission to perform this action.")
@@ -144,5 +144,6 @@ class QuizDestroyAPIViewTests(QuizTestSetup):
 
     def test_view_with_authenticated_classroom_owner_user(self):
         classroom_owner_response = self.client.delete(self.quizzes_detail_url,
-                                                   headers={"Authorization": f"Bearer {self.teacher2_access_token}"}, )
+                                                      headers={
+                                                          "Authorization": f"Bearer {self.teacher2_access_token}"}, )
         self.assertEqual(classroom_owner_response.status_code, status.HTTP_204_NO_CONTENT)
