@@ -1,7 +1,7 @@
 from django.urls import reverse
 
 from classroom.tests.test_setup import TestSetUp
-from quiz.models import Quiz, Question
+from quiz.models import Quiz, Question, Answer
 
 
 class QuizTestSetup(TestSetUp):
@@ -40,9 +40,26 @@ class QuizTestSetup(TestSetUp):
                                             kwargs={"quiz_id": str(self.quiz.id),
                                                     "question_id": str(self.question.id), })
 
-        # self.answers_list_url = reverse("quiz:answers:answers-list", kwargs={"quiz_id": self.quiz.id, })
-        # self.answers_create_url = reverse("quiz:answers:answers-create", kwargs={"quiz_id": self.quiz.id, })
-        # self.answers_detail_url = reverse("quiz:answers:answers-detail", kwargs={"quiz_id": self.quiz.id, })
+        self.answers_list_url = reverse("quiz:answer:answers-list", kwargs={"quiz_id": str(self.quiz.id),
+                                                                            "question_id": str(self.question.id), })
+        self.answers_create_url = reverse("quiz:answer:answers-create", kwargs={"quiz_id": str(self.quiz.id),
+                                                                                "question_id": str(
+                                                                                    self.question.id), })
+
+        self.answer_data = {
+            "description": self.fake.text(),
+            "is_valid": True,
+        }
+
+        self.answer = Answer.objects.create(
+            description="answer description",
+            is_valid=False,
+            question=self.question,
+        )
+
+        self.answers_detail_url = reverse("quiz:answer:answers-detail",
+                                          kwargs={"quiz_id": str(self.quiz.id), "question_id": str(self.question.id),
+                                                  "answer_id": str(self.answer.id)})
 
         self.student_answer_create_url = reverse("quiz:student-quiz:student-answer-create",
                                                  kwargs={"quiz_id": str(self.quiz.id), })

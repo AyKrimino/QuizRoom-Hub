@@ -89,6 +89,11 @@ class AnswerSerializer(serializers.ModelSerializer):
             "id": {"read_only": True},
         }
 
+    def to_internal_value(self, data):
+        if "is_valid" in data and not isinstance(data["is_valid"], bool):
+            raise serializers.ValidationError({"is_valid": _("Not a valid boolean.")})
+        return super().to_internal_value(data)
+
     def validate(self, data):
         question_id = self.context.get('question_id', None)
         if question_id is None:
