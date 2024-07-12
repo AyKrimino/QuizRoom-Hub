@@ -64,7 +64,6 @@ class StudentQuizListAPIView(ListAPIView):
     def get_queryset(self):
         user = self.request.user
         quiz_id = self.kwargs.get("quiz_id")
-        print(f"{quiz_id=}")
         try:
             quiz = Quiz.objects.get(id=quiz_id)
         except Quiz.DoesNotExist:

@@ -1,7 +1,9 @@
+from decimal import Decimal
+
 from django.urls import reverse
 
 from classroom.tests.test_setup import TestSetUp
-from quiz.models import Quiz, Question, Answer
+from quiz.models import Quiz, Question, Answer, StudentAnswer, StudentQuiz
 
 
 class QuizTestSetup(TestSetUp):
@@ -57,12 +59,35 @@ class QuizTestSetup(TestSetUp):
             question=self.question,
         )
 
+        self.answer2 = Answer.objects.create(
+            description="Answer 2 description",
+            is_valid=True,
+            question=self.question,
+        )
+
         self.answers_detail_url = reverse("quiz:answer:answers-detail",
                                           kwargs={"quiz_id": str(self.quiz.id), "question_id": str(self.question.id),
                                                   "answer_id": str(self.answer.id)})
 
         self.student_answer_create_url = reverse("quiz:student-quiz:student-answer-create",
                                                  kwargs={"quiz_id": str(self.quiz.id), })
+
+        self.student_answer_data = {
+            "question_id": str(self.question.id),
+            "answer_id": str(self.answer.id),
+        }
+
+        self.student_answer = StudentAnswer.objects.create(
+            student=self.student2_profile,
+            answer=self.answer2,
+        )
+
+        self.student_quiz = StudentQuiz.objects.create(
+            student=self.student2_profile,
+            quiz=self.quiz,
+            mark=Decimal('100.00'),
+        )
+
         self.student_quiz_list_url = reverse("quiz:student-quiz:student-quiz-list",
                                              kwargs={"quiz_id": str(self.quiz.id), })
         self.student_quiz_create_url = reverse("quiz:student-quiz:student-quiz-create",

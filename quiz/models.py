@@ -75,7 +75,7 @@ class StudentQuiz(models.Model):
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name="submitted_quizzes",
                                 verbose_name=_("Student"))
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="student_answers", verbose_name=_("Quiz"))
-    mark = models.DecimalField(_("Mark"), max_digits=4, decimal_places=2)
+    mark = models.DecimalField(_("Mark"), max_digits=5, decimal_places=2)
     answered_at = models.DateTimeField(_("Answered at"), auto_now_add=True)
 
     class Meta:
