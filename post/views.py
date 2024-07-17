@@ -9,8 +9,8 @@ from rest_framework.views import APIView
 
 from classroom.models import Classroom
 from classroom.permissions import IsClassroomOwner, IsClassroomMember
-from post.permissions import IsCommentAuthor, IsClassroomOwnerOrCommentAuthor
 from post.models import CoursePost, Comment
+from post.permissions import IsCommentAuthor
 from post.serializers import CoursePostSerializer, CommentSerializer
 
 
@@ -19,13 +19,13 @@ class CoursePostCreateAPIView(CreateAPIView):
     serializer_class = CoursePostSerializer
     permission_classes = [IsAuthenticated, IsClassroomOwner]
 
-    def perform_create(self, serializer):
-        classroom_id = serializer.validated_data["classroom"]["id"]
-        try:
-            classroom = Classroom.objects.get(id=classroom_id)
-        except Classroom.DoesNotExist:
-            raise ValidationError(_("Classroom does not exist."))
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["classroom_id"] = self.kwargs.get("classroom_id", None)
+        return context
 
+    def perform_create(self, serializer):
+        classroom = serializer.validated_data["classroom"]
         self.check_object_permissions(self.request, classroom)
         serializer.save()
 
@@ -71,7 +71,7 @@ class CoursePostRetrieveUpdateDestroyAPIView(APIView):
     def put(self, request, classroom_id, post_id, *args, **kwargs):
         self.check_permissions(request)
         post = self.get_object(post_id)
-        serializer = CoursePostSerializer(post, data=request.data)
+        serializer = CoursePostSerializer(post, data=request.data, context={"classroom_id": classroom_id})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -88,13 +88,14 @@ class CommentCreateAPIView(CreateAPIView):
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated, IsClassroomMember]
 
-    def perform_create(self, serializer):
-        post_id = serializer.validated_data["post"]["id"]
-        try:
-            post = CoursePost.objects.get(id=post_id)
-        except CoursePost.DoesNotExist:
-            raise ValidationError(_("Post does not exist."))
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["post_id"] = self.kwargs.get("post_id", None)
+        context["user"] = self.request.user
+        return context
 
+    def perform_create(self, serializer):
+        post = serializer.validated_data["post"]
         classroom = post.classroom
         self.check_object_permissions(self.request, classroom)
         serializer.save()
@@ -123,25 +124,28 @@ class CommentRetrieveUpdateDeleteAPIView(APIView):
         elif self.request.method == "PUT":
             self.permission_classes = [IsAuthenticated, IsCommentAuthor]
         elif self.request.method == "DELETE":
-            self.permission_classes = [IsAuthenticated, IsClassroomOwnerOrCommentAuthor]
+            self.permission_classes = [IsAuthenticated]
         return super().get_permissions()
 
     def get_object(self, comment_id):
         try:
             comment = Comment.objects.get(id=comment_id)
             classroom = comment.post.classroom
-            self.check_permissions_for_objects(classroom, comment)
+            self.check_permissions_for_classroom_and_comment(classroom, comment)
+            return comment
         except Comment.DoesNotExist:
             raise Http404
 
-    def check_permissions_for_objects(self, classroom, comment):
+    def check_permissions_for_classroom_and_comment(self, classroom, comment):
         if self.request.method in SAFE_METHODS:
             self.check_object_permissions(self.request, classroom)
         elif self.request.method == "PUT":
             self.check_object_permissions(self.request, comment)
         elif self.request.method == "DELETE":
-            self.check_object_permissions(self.request, classroom)
-            self.check_object_permissions(self.request, comment)
+            if not IsClassroomOwner().has_object_permission(self.request, self,
+                                                            classroom) and not IsCommentAuthor().has_object_permission(
+                self.request, self, comment):
+                self.permission_denied(self.request, message=_("You do not have permission to perform this action."))
 
     def get(self, request, classroom_id, post_id, comment_id, *args, **kwargs):
         self.check_permissions(request)
@@ -152,7 +156,7 @@ class CommentRetrieveUpdateDeleteAPIView(APIView):
     def put(self, request, classroom_id, post_id, comment_id, *args, **kwargs):
         self.check_permissions(request)
         comment = self.get_object(comment_id)
-        serializer = CommentSerializer(comment, data=request.data)
+        serializer = CommentSerializer(comment, data=request.data, context={"post_id": post_id, "user": request.user})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -1,5 +1,4 @@
 from rest_framework.permissions import BasePermission
-from classroom.permissions import IsClassroomOwner
 
 
 class IsCommentAuthor(BasePermission):
@@ -26,13 +25,3 @@ class IsCommentAuthor(BasePermission):
         - bool: `True` if the request.user is the author of the comment, `False` otherwise.
         """
         return request.user == obj.user
-
-
-# Composite permission combining IsClassroomOwner and IsCommentAuthor permissions
-IsClassroomOwnerOrCommentAuthor = IsClassroomOwner | IsCommentAuthor
-"""
-Composite permission to allow access if the user is either the owner of the classroom or the author of the comment.
-
-Usage:
-Apply this permission to views where you want to restrict access to actions (such as delete) to either the owner of the classroom or the author of the comment.
-"""
