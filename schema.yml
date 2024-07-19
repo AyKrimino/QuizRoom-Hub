@@ -3,6 +3,653 @@ info:
   title: ''
   version: 0.0.0
 paths:
+  /api/classrooms/:
+    get:
+      operationId: classrooms_list
+      description: |-
+        API view to retrieve a list of classrooms created by the authenticated teacher.
+
+        This view is accessible only to authenticated users who have a `TeacherProfile`.
+        The view will return a list of all classrooms created by the authenticated teacher.
+
+        Permissions:
+        - `IsAuthenticated`: Ensures that the user is logged in.
+        - `IsTeacher`: Ensures that the user has a `TeacherProfile`.
+
+        Serializer:
+        - Uses the `ClassroomSerializer` to serialize the classroom data.
+
+        Methods:
+        - `get_queryset`: Retrieves the list of classrooms for the authenticated teacher.
+      tags:
+      - classrooms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Classroom'
+          description: ''
+  /api/classrooms/{classroom_id}/posts/:
+    get:
+      operationId: classrooms_posts_list
+      description: |-
+        API view to list all CoursePost objects for a specific classroom.
+
+        This view handles the retrieval of CoursePost objects, ensuring that the
+        user is authenticated and is a member of the specified classroom.
+
+        Attributes:
+            serializer_class (Serializer): The serializer class to use for
+                                           serializing output.
+            permission_classes (list): A list of permission classes that the user
+                                       must pass to access this view.
+      parameters:
+      - in: path
+        name: classroom_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - classrooms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CoursePost'
+          description: ''
+  /api/classrooms/{classroom_id}/posts/{post_id}/:
+    get:
+      operationId: classrooms_posts_retrieve
+      description: |-
+        Handles GET requests to retrieve the CoursePost object.
+
+        Args:
+            request (Request): The HTTP request object.
+            classroom_id (uuid): The ID of the classroom.
+            post_id (uuid): The ID of the CoursePost object.
+            *args: Additional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Response: The serialized CoursePost object and a 200 OK status.
+      parameters:
+      - in: path
+        name: classroom_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - classrooms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoursePost'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+    put:
+      operationId: classrooms_posts_update
+      description: |-
+        Handles PUT requests to update the CoursePost object.
+
+        Args:
+            request (Request): The HTTP request object.
+            classroom_id (uuid): The ID of the classroom.
+            post_id (uuid): The ID of the CoursePost object.
+            *args: Additional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Response: The serialized updated CoursePost object and a 200 OK status.
+      parameters:
+      - in: path
+        name: classroom_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - classrooms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoursePost'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CoursePost'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CoursePost'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoursePost'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+    delete:
+      operationId: classrooms_posts_destroy
+      description: |-
+        Handles DELETE requests to delete the CoursePost object.
+
+        Args:
+            request (Request): The HTTP request object.
+            classroom_id (uuid): The ID of the classroom.
+            post_id (uuid): The ID of the CoursePost object.
+            *args: Additional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Response: A 204 No Content status.
+      parameters:
+      - in: path
+        name: classroom_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - classrooms
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/classrooms/{classroom_id}/posts/{post_id}/comments/:
+    get:
+      operationId: classrooms_posts_comments_list
+      description: |-
+        API view to retrieve a list of Comment objects for a specific post.
+
+        This view handles GET requests to list all comments associated with a specific post,
+        ensuring that the user is authenticated and a member of the classroom associated with the post.
+
+        Attributes:
+            serializer_class (Serializer): The serializer class for Comment objects.
+            permission_classes (list): The list of permission classes that the user must pass to access this view.
+
+        Methods:
+            get_queryset: Retrieves the queryset of comments for the specified post, ensuring that the post exists
+                          and that the user has the appropriate permissions.
+      parameters:
+      - in: path
+        name: classroom_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - classrooms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+          description: ''
+  /api/classrooms/{classroom_id}/posts/{post_id}/comments/{comment_id}/:
+    get:
+      operationId: classrooms_posts_comments_retrieve
+      description: |-
+        Handles GET requests to retrieve the comment.
+
+        Args:
+            request (Request): The HTTP request object.
+            classroom_id (uuid): The ID of the classroom.
+            post_id (uuid): The ID of the post.
+            comment_id (uuid): The ID of the comment.
+
+        Returns:
+            Response: The response containing the serialized comment data and HTTP status 200 OK.
+      parameters:
+      - in: path
+        name: classroom_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: comment_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - classrooms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+    put:
+      operationId: classrooms_posts_comments_update
+      description: |-
+        Handles PUT requests to update the comment.
+
+        Args:
+            request (Request): The HTTP request object.
+            classroom_id (uuid): The ID of the classroom.
+            post_id (uuid): The ID of the post.
+            comment_id (uuid): The ID of the comment.
+
+        Returns:
+            Response: The response containing the serialized updated comment data and HTTP status 200 OK.
+      parameters:
+      - in: path
+        name: classroom_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: comment_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - classrooms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+    delete:
+      operationId: classrooms_posts_comments_destroy
+      description: |-
+        Handles DELETE requests to delete the comment.
+
+        Args:
+            request (Request): The HTTP request object.
+            classroom_id (uuid): The ID of the classroom.
+            post_id (uuid): The ID of the post.
+            comment_id (uuid): The ID of the comment.
+
+        Returns:
+            Response: The response with HTTP status 204 NO CONTENT.
+      parameters:
+      - in: path
+        name: classroom_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: comment_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - classrooms
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/classrooms/{classroom_id}/posts/{post_id}/comments/create/:
+    post:
+      operationId: classrooms_posts_comments_create_create
+      description: |-
+        API view to create a new Comment object.
+
+        This view handles POST requests to create a new Comment object, ensuring that the user is authenticated
+        and a member of the classroom associated with the post.
+
+        Attributes:
+            queryset (QuerySet): The queryset of Comment objects.
+            serializer_class (Serializer): The serializer class for Comment objects.
+            permission_classes (list): The list of permission classes that the user must pass to access this view.
+
+        Methods:
+            get_serializer_context: Adds additional context to the serializer.
+            perform_create: Performs the creation of the Comment object and checks permissions.
+      parameters:
+      - in: path
+        name: classroom_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - classrooms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+  /api/classrooms/{classroom_id}/posts/create/:
+    post:
+      operationId: classrooms_posts_create_create
+      description: |-
+        API view to create a new CoursePost.
+
+        This view handles the creation of a CoursePost object, ensuring that the
+        user is authenticated and is the owner of the associated classroom.
+
+        Attributes:
+            queryset (QuerySet): A queryset containing all CoursePost objects.
+            serializer_class (Serializer): The serializer class to use for
+                                           validating and deserializing input, and
+                                           for serializing output.
+            permission_classes (list): A list of permission classes that the user
+                                       must pass to access this view.
+      parameters:
+      - in: path
+        name: classroom_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - classrooms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoursePost'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CoursePost'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CoursePost'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoursePost'
+          description: ''
+  /api/classrooms/{id}/:
+    get:
+      operationId: classrooms_retrieve
+      description: |-
+        Handle GET requests to retrieve the details of a specific classroom.
+
+        Args:
+            request: The HTTP request object.
+            pk (uuid): Primary key of the classroom to retrieve.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Response: Response object containing serialized classroom data.
+
+        Raises:
+            Http404: If the classroom with the provided `pk` does not exist.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - classrooms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: classrooms_update
+      description: |-
+        Handle PUT requests to update a specific classroom.
+
+        Args:
+            request: The HTTP request object.
+            pk (uuid): Primary key of the classroom to update.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Response: Response object containing serialized updated classroom data.
+
+        Raises:
+            Http404: If the classroom with the provided `pk` does not exist.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - classrooms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: classrooms_destroy
+      description: |-
+        Handle DELETE requests to delete a specific classroom.
+
+        Args:
+            request: The HTTP request object.
+            pk (uuid): Primary key of the classroom to delete.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Response: Response object with status HTTP_204_NO_CONTENT.
+
+        Raises:
+            Http404: If the classroom with the provided `pk` does not exist.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - classrooms
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/classrooms/create/:
+    post:
+      operationId: classrooms_create_create
+      description: |-
+        API view to create a new classroom.
+
+        This view is accessible only to authenticated users who have a `TeacherProfile`.
+        The view allows the authenticated teacher to create a new classroom.
+
+        Permissions:
+        - `IsAuthenticated`: Ensures that the user is logged in.
+        - `IsTeacher`: Ensures that the user has a `TeacherProfile`.
+
+        Serializer:
+        - Uses the `ClassroomSerializer` to serialize the classroom data.
+
+        Methods:
+        - `perform_create`: Associates the new classroom with the authenticated teacher.
+      tags:
+      - classrooms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Classroom'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Classroom'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Classroom'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Classroom'
+          description: ''
   /api/login/:
     post:
       operationId: login_create
@@ -70,6 +717,910 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Bad Request
+  /api/profiles/students/:
+    get:
+      operationId: profiles_students_list
+      parameters:
+      - in: query
+        name: date_of_birth
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: date_of_birth__month
+        schema:
+          type: number
+      - in: query
+        name: date_of_birth__month__gt
+        schema:
+          type: number
+      - in: query
+        name: date_of_birth__month__lt
+        schema:
+          type: number
+      - in: query
+        name: date_of_birth__year
+        schema:
+          type: number
+      - in: query
+        name: date_of_birth__year__gt
+        schema:
+          type: number
+      - in: query
+        name: date_of_birth__year__lt
+        schema:
+          type: number
+      - in: query
+        name: email
+        schema:
+          type: string
+      - in: query
+        name: firstname
+        schema:
+          type: string
+      - in: query
+        name: lastname
+        schema:
+          type: string
+      tags:
+      - profiles
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentProfile'
+          description: ''
+  /api/profiles/students/{id}/:
+    get:
+      operationId: profiles_students_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - profiles
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: profiles_students_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - profiles
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: profiles_students_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - profiles
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/profiles/teachers/:
+    get:
+      operationId: profiles_teachers_list
+      parameters:
+      - in: query
+        name: date_of_birth
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: date_of_birth__month
+        schema:
+          type: number
+      - in: query
+        name: date_of_birth__month__gt
+        schema:
+          type: number
+      - in: query
+        name: date_of_birth__month__lt
+        schema:
+          type: number
+      - in: query
+        name: date_of_birth__year
+        schema:
+          type: number
+      - in: query
+        name: date_of_birth__year__gt
+        schema:
+          type: number
+      - in: query
+        name: date_of_birth__year__lt
+        schema:
+          type: number
+      - in: query
+        name: email
+        schema:
+          type: string
+      - in: query
+        name: firstname
+        schema:
+          type: string
+      - in: query
+        name: lastname
+        schema:
+          type: string
+      - in: query
+        name: years_of_experience
+        schema:
+          type: integer
+      - in: query
+        name: years_of_experience__gte
+        schema:
+          type: integer
+      - in: query
+        name: years_of_experience__lte
+        schema:
+          type: integer
+      tags:
+      - profiles
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeacherProfile'
+          description: ''
+  /api/profiles/teachers/{id}/:
+    get:
+      operationId: profiles_teachers_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - profiles
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: profiles_teachers_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - profiles
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: profiles_teachers_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - profiles
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/quizzes/:
+    get:
+      operationId: quizzes_list
+      description: |-
+        API view to list Quiz instances.
+
+        This view returns a list of quizzes that are associated with the classrooms
+        of the authenticated teacher. The user must be authenticated and have a
+        teacher profile.
+
+        Attributes:
+            serializer_class: The serializer class to handle the quiz listing.
+            permission_classes: The list of permission classes required to access
+                this view.
+
+        Methods:
+            get_queryset():
+                Returns the queryset of quizzes associated with the teacher's
+                classrooms.
+      tags:
+      - quizzes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Quiz'
+          description: ''
+  /api/quizzes/{quiz_id}/:
+    get:
+      operationId: quizzes_retrieve
+      description: |-
+        Handles GET requests to retrieve the quiz details.
+
+        Args:
+            request (Request): The HTTP request object.
+            quiz_id (UUID): The ID of the quiz to be retrieved.
+
+        Returns:
+            Response: The response containing the quiz details.
+      parameters:
+      - in: path
+        name: quiz_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - quizzes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: quizzes_update
+      description: |-
+        Handles PUT requests to update the quiz details.
+
+        Args:
+            request (Request): The HTTP request object.
+            quiz_id (UUID): The ID of the quiz to be updated.
+
+        Returns:
+            Response: The response containing the updated quiz details.
+      parameters:
+      - in: path
+        name: quiz_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - quizzes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: quizzes_destroy
+      description: |-
+        Handles DELETE requests to delete the quiz.
+
+        Args:
+            request (Request): The HTTP request object.
+            quiz_id (UUID): The ID of the quiz to be deleted.
+
+        Returns:
+            Response: The response indicating that the quiz has been deleted.
+      parameters:
+      - in: path
+        name: quiz_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - quizzes
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/quizzes/{quiz_id}/questions/:
+    get:
+      operationId: quizzes_questions_list
+      description: |-
+        API view to list Question instances for a specific quiz.
+
+        This view returns a list of questions associated with a specific quiz.
+        The user must be authenticated and a member of the classroom to access this view.
+
+        Attributes:
+            serializer_class: The serializer class to handle the question listing.
+            permission_classes: The list of permission classes required to access this view.
+
+        Methods:
+            get_queryset():
+                Returns the queryset of questions associated with the specified quiz.
+      parameters:
+      - in: path
+        name: quiz_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - quizzes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Question'
+          description: ''
+  /api/quizzes/{quiz_id}/questions/{question_id}/:
+    get:
+      operationId: quizzes_questions_retrieve
+      description: |-
+        Handles GET requests to retrieve the question details.
+
+        Args:
+            request (Request): The HTTP request object.
+            quiz_id (UUID): The ID of the quiz to which the question belongs.
+            question_id (UUID): The ID of the question to be retrieved.
+
+        Returns:
+            Response: The response containing the question details.
+      parameters:
+      - in: path
+        name: question_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: quiz_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - quizzes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: quizzes_questions_update
+      description: |-
+        Handles PUT requests to update the question details.
+
+        Args:
+            request (Request): The HTTP request object.
+            quiz_id (UUID): The ID of the quiz to which the question belongs.
+            question_id (UUID): The ID of the question to be updated.
+
+        Returns:
+            Response: The response containing the updated question details.
+      parameters:
+      - in: path
+        name: question_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: quiz_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - quizzes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: quizzes_questions_destroy
+      description: |-
+        Handles DELETE requests to delete the question.
+
+        Args:
+            request (Request): The HTTP request object.
+            quiz_id (UUID): The ID of the quiz to which the question belongs.
+            question_id (UUID): The ID of the question to be deleted.
+
+        Returns:
+            Response: The response indicating that the question has been deleted.
+      parameters:
+      - in: path
+        name: question_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: quiz_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - quizzes
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/quizzes/{quiz_id}/questions/{question_id}/answers/:
+    get:
+      operationId: quizzes_questions_answers_list
+      description: |-
+        API view to list Answer instances for a specific question.
+
+        This view returns a list of answers associated with a specific question.
+        The user must be authenticated and the owner of the classroom to access this view.
+
+        Attributes:
+            serializer_class: The serializer class to handle the answer listing.
+            permission_classes: The list of permission classes required to access this view.
+
+        Methods:
+            get_queryset():
+                Returns the queryset of answers associated with the specified question.
+      parameters:
+      - in: path
+        name: question_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: quiz_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - quizzes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Answer'
+          description: ''
+  /api/quizzes/{quiz_id}/questions/{question_id}/answers/{answer_id}/:
+    get:
+      operationId: quizzes_questions_answers_retrieve
+      description: |-
+        Handles GET requests to retrieve the answer details.
+
+        Args:
+            request (Request): The HTTP request object.
+            quiz_id (UUID): The ID of the quiz to which the answer's question belongs.
+            question_id (UUID): The ID of the question to which the answer belongs.
+            answer_id (UUID): The ID of the answer to be retrieved.
+
+        Returns:
+            Response: The response containing the answer details.
+      parameters:
+      - in: path
+        name: answer_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: question_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: quiz_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - quizzes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: quizzes_questions_answers_update
+      description: |-
+        Handles PUT requests to update the answer details.
+
+        Args:
+            request (Request): The HTTP request object.
+            quiz_id (UUID): The ID of the quiz to which the answer's question belongs.
+            question_id (UUID): The ID of the question to which the answer belongs.
+            answer_id (UUID): The ID of the answer to be updated.
+
+        Returns:
+            Response: The response containing the updated answer details.
+      parameters:
+      - in: path
+        name: answer_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: question_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: quiz_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - quizzes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: quizzes_questions_answers_destroy
+      description: |-
+        Handles DELETE requests to delete the answer.
+
+        Args:
+            request (Request): The HTTP request object.
+            quiz_id (UUID): The ID of the quiz to which the answer's question belongs.
+            question_id (UUID): The ID of the question to which the answer belongs.
+            answer_id (UUID): The ID of the answer to be deleted.
+
+        Returns:
+            Response: The response indicating that the answer has been deleted.
+      parameters:
+      - in: path
+        name: answer_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: question_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: quiz_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - quizzes
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/quizzes/{quiz_id}/questions/{question_id}/answers/create/:
+    post:
+      operationId: quizzes_questions_answers_create_create
+      description: |-
+        API view to create a new Answer instance.
+
+        This view handles the creation of new answers associated with a specific question.
+        It requires that the user is authenticated and is the owner of the classroom to which
+        the question's quiz belongs.
+
+        Attributes:
+            queryset: The queryset of Answer objects.
+            serializer_class: The serializer class to handle answer creation.
+            permission_classes: The list of permission classes required to access this view.
+
+        Methods:
+            get_serializer_context():
+                Adds the 'question_id' from the URL kwargs to the serializer context.
+
+            perform_create(serializer):
+                Handles the actual saving of the answer. Validates the associated question and
+                checks that the user has the necessary permissions.
+      parameters:
+      - in: path
+        name: question_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: quiz_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Answer'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Answer'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Answer'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Answer'
+          description: ''
+  /api/quizzes/{quiz_id}/questions/create/:
+    post:
+      operationId: quizzes_questions_create_create
+      description: |-
+        API view to create a new Question instance.
+
+        This view handles the creation of new questions associated with a specific quiz.
+        It requires that the user is authenticated and is the owner of the classroom to which
+        the quiz belongs.
+
+        Attributes:
+            queryset: The queryset of Question objects.
+            serializer_class: The serializer class to handle question creation.
+            permission_classes: The list of permission classes required to access this view.
+
+        Methods:
+            get_serializer_context():
+                Adds the 'quiz_id' from the URL kwargs to the serializer context.
+
+            perform_create(serializer):
+                Handles the actual saving of the question. Validates the associated quiz and
+                checks that the user has the necessary permissions.
+      parameters:
+      - in: path
+        name: quiz_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Question'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Question'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Question'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+          description: ''
+  /api/quizzes/{quiz_id}/student-answer/:
+    post:
+      operationId: quizzes_student_answer_create
+      description: |-
+        Handles POST requests to create a new student answer.
+
+        This method validates the quiz ID from the URL kwargs, checks the user's
+        permissions for the associated classroom, and then creates the student answer.
+
+        Args:
+            request (Request): The HTTP request object.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Response: The response containing the created student answer details.
+
+        Raises:
+            ValidationError: If the quiz does not exist.
+      parameters:
+      - in: path
+        name: quiz_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - quizzes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/quizzes/{quiz_id}/student-quiz/:
+    get:
+      operationId: quizzes_student_quiz_list
+      description: |-
+        API view to list StudentQuiz instances.
+
+        This view returns a list of student quizzes for a specific quiz. It requires that the user
+        is authenticated and a member of the classroom.
+
+        Attributes:
+            serializer_class: The serializer class to handle the student quiz listing.
+            permission_classes: The list of permission classes required to access this view.
+
+        Methods:
+            get_queryset():
+                Returns the queryset of student quizzes associated with the specified quiz.
+                If the user is a student, it returns only their student quizzes. If the user
+                is a teacher, it returns all student quizzes for the classroom.
+      parameters:
+      - in: path
+        name: quiz_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - quizzes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentQuiz'
+          description: ''
+  /api/quizzes/{quiz_id}/student-quiz/submit/:
+    post:
+      operationId: quizzes_student_quiz_submit_create
+      description: |-
+        API view to create a new StudentQuiz instance.
+
+        This view handles the creation of new student quiz instances. It requires that the user is authenticated,
+        a member of the classroom, and a student.
+
+        Attributes:
+            queryset: The queryset of StudentQuiz objects.
+            serializer_class: The serializer class to handle student quiz creation.
+            permission_classes: The list of permission classes required to access this view.
+
+        Methods:
+            get_serializer_context():
+                Adds the 'student' and 'quiz_id' to the serializer context.
+
+            perform_create(serializer):
+                Handles the actual saving of the student quiz. Validates the associated quiz and
+                checks that the user has the necessary permissions.
+      parameters:
+      - in: path
+        name: quiz_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentQuiz'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentQuiz'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentQuiz'
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentQuiz'
+          description: ''
+  /api/quizzes/create/:
+    post:
+      operationId: quizzes_create_create
+      description: |-
+        API view to create a new Quiz instance.
+
+        This view handles the creation of new quizzes. It requires that the user
+        is authenticated and is the owner of the classroom to which the quiz is
+        being added. The view ensures that the classroom specified in the request
+        exists and that the user has the necessary permissions to add a quiz to
+        that classroom.
+
+        Attributes:
+            queryset: The queryset of Quiz objects.
+            serializer_class: The serializer class to handle quiz creation.
+            permission_classes: The list of permission classes required to access
+                this view.
+
+        Methods:
+            perform_create(serializer):
+                Handles the actual saving of the quiz. Validates the classroom ID
+                and checks that the classroom exists. Also ensures the user has the
+                required permissions.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Quiz'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Quiz'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Quiz'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quiz'
+          description: ''
   /api/register/:
     post:
       operationId: register_create
@@ -103,6 +1654,270 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Bad Request
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/students-classrooms/:
+    get:
+      operationId: students_classrooms_list
+      description: |-
+        API view to list student classroom relationships based on user type.
+
+        This view is accessible to authenticated users who are either students or teachers.
+        Students will see classrooms they are enrolled in, while teachers will see classrooms
+        they created along with the students enrolled in each classroom.
+
+        Permissions:
+        - `IsAuthenticated`: Ensures that the user is logged in.
+        - `IsStudentOrTeacher`: Allows access to either students or teachers.
+
+        Methods:
+        - `get_queryset`: Returns a queryset based on whether the user is a student or teacher.
+          Students get classrooms they are enrolled in, while teachers get classrooms they created
+          along with student enrollment details.
+      tags:
+      - students-classrooms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentClassroom'
+          description: ''
+  /api/students-classrooms/{student_id}/{classroom_id}/:
+    get:
+      operationId: students_classrooms_retrieve
+      description: |-
+        Handle GET requests to retrieve details of the student classroom relationship.
+
+        Args:
+        - request: HTTP request object.
+        - student_id: UUID of the student profile.
+        - classroom_id: UUID of the classroom.
+
+        Returns:
+        - Response: JSON response with serialized data of the student classroom relationship
+          and HTTP status code.
+      parameters:
+      - in: path
+        name: classroom_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: student_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - students-classrooms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: students_classrooms_destroy
+      description: |-
+        Handle DELETE requests to delete the student classroom relationship.
+
+        Args:
+        - request: HTTP request object.
+        - student_id: UUID of the student profile.
+        - classroom_id: UUID of the classroom.
+
+        Returns:
+        - Response: Empty response with HTTP status code indicating successful deletion.
+      parameters:
+      - in: path
+        name: classroom_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: student_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - students-classrooms
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/students-classrooms/create/:
+    post:
+      operationId: students_classrooms_create_create
+      description: |-
+        Handle POST requests to create a student classroom relationship.
+
+        Args:
+        - request: HTTP request object containing data to create the relationship.
+
+        Returns:
+        - Response: JSON response with serialized data of the created relationship and
+          HTTP status code.
+
+        Raises:
+        - Http404: If the classroom or student profile does not exist.
+      tags:
+      - students-classrooms
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/token/refresh/:
     post:
       operationId: token_refresh_create
@@ -132,6 +1947,127 @@ paths:
           description: ''
 components:
   schemas:
+    Answer:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          title: Answer id
+        description:
+          type: string
+          title: Answer description
+        is_valid:
+          type: boolean
+          title: Answer validity
+        question:
+          allOf:
+          - $ref: '#/components/schemas/Question'
+          readOnly: true
+      required:
+      - description
+      - id
+      - is_valid
+      - question
+    Classroom:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          title: Classroom id
+        name:
+          type: string
+          title: Classroom name
+          maxLength: 200
+        teacher:
+          allOf:
+          - $ref: '#/components/schemas/TeacherProfileSerializerForClassroom'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Classroom created at
+      required:
+      - created_at
+      - id
+      - name
+      - teacher
+    Comment:
+      type: object
+      properties:
+        user:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        post:
+          allOf:
+          - $ref: '#/components/schemas/CoursePost'
+          readOnly: true
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          title: Comment id
+        content:
+          type: string
+          title: Comment content
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Comment created at
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Comment updated at
+      required:
+      - content
+      - created_at
+      - id
+      - post
+      - updated_at
+      - user
+    CoursePost:
+      type: object
+      properties:
+        classroom:
+          allOf:
+          - $ref: '#/components/schemas/Classroom'
+          readOnly: true
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          title: Course id
+        title:
+          type: string
+          title: Course title
+          maxLength: 200
+        content:
+          type: string
+          title: Course content
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Course created at
+        last_updated:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Course updated at
+      required:
+      - classroom
+      - content
+      - created_at
+      - id
+      - last_updated
+      - title
     ErrorResponse:
       type: object
       properties:
@@ -151,6 +2087,59 @@ components:
       required:
       - email
       - password
+    Question:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          title: Question id
+        description:
+          type: string
+          title: Question description
+        quiz:
+          allOf:
+          - $ref: '#/components/schemas/Quiz'
+          readOnly: true
+      required:
+      - description
+      - id
+      - quiz
+    Quiz:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          title: Quiz id
+        title:
+          type: string
+          title: Quiz title
+          maxLength: 200
+        content:
+          type: string
+          nullable: true
+          title: Quiz content
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Quiz created at
+        last_updated:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Quiz updated at
+        classroom_id:
+          type: string
+          format: uuid
+      required:
+      - created_at
+      - id
+      - last_updated
+      - title
     RegisterUser:
       type: object
       properties:
@@ -176,6 +2165,271 @@ components:
       - email
       - password
       - password2
+    StudentClassroom:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        student:
+          allOf:
+          - $ref: '#/components/schemas/StudentProfileSerializerForClassroom'
+          readOnly: true
+        classroom:
+          allOf:
+          - $ref: '#/components/schemas/Classroom'
+          readOnly: true
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+        classroom_id:
+          type: string
+          format: uuid
+          writeOnly: true
+      required:
+      - classroom
+      - classroom_id
+      - date_joined
+      - id
+      - student
+    StudentProfile:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          readOnly: true
+        user_email:
+          type: string
+          format: email
+          readOnly: true
+        user_first_name:
+          type: string
+        user_last_name:
+          type: string
+        user_is_teacher:
+          type: boolean
+          readOnly: true
+        user_is_active:
+          type: boolean
+          readOnly: true
+        user_date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+        user_last_login:
+          type: string
+          format: date-time
+          readOnly: true
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          title: Student id
+        bio:
+          type: string
+          nullable: true
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        profile_picture:
+          type: string
+          format: uri
+          nullable: true
+      required:
+      - id
+      - user_date_joined
+      - user_email
+      - user_id
+      - user_is_active
+      - user_is_teacher
+      - user_last_login
+    StudentProfileSerializerForClassroom:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          readOnly: true
+        user_email:
+          type: string
+          format: email
+          readOnly: true
+        user_first_name:
+          type: string
+        user_last_name:
+          type: string
+        user_is_teacher:
+          type: boolean
+          readOnly: true
+        user_is_active:
+          type: boolean
+          readOnly: true
+        user_date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+        user_last_login:
+          type: string
+          format: date-time
+          readOnly: true
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          title: Student id
+        bio:
+          type: string
+          nullable: true
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+      required:
+      - id
+      - user_date_joined
+      - user_email
+      - user_id
+      - user_is_active
+      - user_is_teacher
+      - user_last_login
+    StudentQuiz:
+      type: object
+      properties:
+        student:
+          allOf:
+          - $ref: '#/components/schemas/StudentProfileSerializerForClassroom'
+          readOnly: true
+        quiz:
+          allOf:
+          - $ref: '#/components/schemas/Quiz'
+          readOnly: true
+        mark:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          readOnly: true
+        answered_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - answered_at
+      - mark
+      - quiz
+      - student
+    TeacherProfile:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          readOnly: true
+        user_email:
+          type: string
+          format: email
+          readOnly: true
+        user_first_name:
+          type: string
+        user_last_name:
+          type: string
+        user_is_teacher:
+          type: boolean
+          readOnly: true
+        user_is_active:
+          type: boolean
+          readOnly: true
+        user_date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+        user_last_login:
+          type: string
+          format: date-time
+          readOnly: true
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          title: Teacher id
+        bio:
+          type: string
+          nullable: true
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        years_of_experience:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        profile_picture:
+          type: string
+          format: uri
+          nullable: true
+      required:
+      - id
+      - user_date_joined
+      - user_email
+      - user_id
+      - user_is_active
+      - user_is_teacher
+      - user_last_login
+    TeacherProfileSerializerForClassroom:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          readOnly: true
+        user_email:
+          type: string
+          format: email
+          readOnly: true
+        user_first_name:
+          type: string
+        user_last_name:
+          type: string
+        user_is_teacher:
+          type: boolean
+          readOnly: true
+        user_is_active:
+          type: boolean
+          readOnly: true
+        user_date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+        user_last_login:
+          type: string
+          format: date-time
+          readOnly: true
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          title: Teacher id
+        bio:
+          type: string
+          nullable: true
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        years_of_experience:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+      required:
+      - id
+      - user_date_joined
+      - user_email
+      - user_id
+      - user_is_active
+      - user_is_teacher
+      - user_last_login
     TokenRefresh:
       type: object
       properties:
@@ -187,6 +2441,49 @@ components:
       required:
       - access
       - refresh
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+          title: Email Address
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        is_teacher:
+          type: boolean
+          readOnly: true
+          title: Teacher Status
+        is_active:
+          type: boolean
+          readOnly: true
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+        last_login:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - date_joined
+      - email
+      - id
+      - is_active
+      - is_teacher
+      - last_login
   securitySchemes:
     jwtAuth:
       type: http

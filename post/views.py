@@ -1,5 +1,6 @@
 from django.http import Http404
 from django.utils.translation import gettext_lazy as _
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
@@ -7,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.views import APIView
 
+from authuser.serializers import ErrorResponseSerializer
 from classroom.models import Classroom
 from classroom.permissions import IsClassroomOwner, IsClassroomMember
 from post.models import CoursePost, Comment
@@ -159,6 +161,12 @@ class CoursePostRetrieveUpdateDestroyAPIView(APIView):
         except CoursePost.DoesNotExist:
             raise Http404
 
+    @extend_schema(
+        responses={
+            200: CoursePostSerializer,
+            404: ErrorResponseSerializer,
+        },
+    )
     def get(self, request, classroom_id, post_id, *args, **kwargs):
         """
         Handles GET requests to retrieve the CoursePost object.
@@ -178,6 +186,14 @@ class CoursePostRetrieveUpdateDestroyAPIView(APIView):
         serializer = CoursePostSerializer(post)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        request=CoursePostSerializer,
+        responses={
+            200: CoursePostSerializer,
+            400: ErrorResponseSerializer,
+            404: ErrorResponseSerializer,
+        },
+    )
     def put(self, request, classroom_id, post_id, *args, **kwargs):
         """
         Handles PUT requests to update the CoursePost object.
@@ -199,6 +215,12 @@ class CoursePostRetrieveUpdateDestroyAPIView(APIView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        responses={
+            204: None,
+            404: ErrorResponseSerializer,
+        },
+    )
     def delete(self, request, classroom_id, post_id, *args, **kwargs):
         """
         Handles DELETE requests to delete the CoursePost object.
@@ -387,6 +409,12 @@ class CommentRetrieveUpdateDeleteAPIView(APIView):
                     self.permission_denied(self.request,
                                            message=_("You do not have permission to perform this action."))
 
+    @extend_schema(
+        responses={
+            200: CommentSerializer,
+            404: ErrorResponseSerializer,
+        },
+    )
     def get(self, request, classroom_id, post_id, comment_id, *args, **kwargs):
         """
         Handles GET requests to retrieve the comment.
@@ -405,6 +433,14 @@ class CommentRetrieveUpdateDeleteAPIView(APIView):
         serializer = CommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        request=CommentSerializer,
+        responses={
+            200: CommentSerializer,
+            400: ErrorResponseSerializer,
+            404: ErrorResponseSerializer,
+        },
+    )
     def put(self, request, classroom_id, post_id, comment_id, *args, **kwargs):
         """
         Handles PUT requests to update the comment.
@@ -425,6 +461,12 @@ class CommentRetrieveUpdateDeleteAPIView(APIView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        responses={
+            204: None,
+            404: ErrorResponseSerializer,
+        },
+    )
     def delete(self, request, classroom_id, post_id, comment_id, *args, **kwargs):
         """
         Handles DELETE requests to delete the comment.
