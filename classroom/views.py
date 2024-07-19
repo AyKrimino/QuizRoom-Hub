@@ -5,7 +5,9 @@ from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.views import APIView
+from drf_spectacular.utils import extend_schema
 
+from authuser.serializers import ErrorResponseSerializer
 from account.models import StudentProfile, TeacherProfile
 from .models import Classroom, StudentClassroom
 from .permissions import (IsClassroomMember, IsClassroomOwner, IsTeacher, IsStudentOrTeacher, )
@@ -136,6 +138,12 @@ class ClassroomRetrieveUpdateDestroyAPIView(APIView):
         except Classroom.DoesNotExist:
             raise Http404
 
+    @extend_schema(
+        responses={
+            200: ClassroomSerializer,
+            404: ErrorResponseSerializer,
+        },
+    )
     def get(self, request, pk, *args, **kwargs):
         """
         Handle GET requests to retrieve the details of a specific classroom.
@@ -157,6 +165,14 @@ class ClassroomRetrieveUpdateDestroyAPIView(APIView):
         serializer = ClassroomSerializer(classroom)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        request=ClassroomSerializer,
+        responses={
+            200: ClassroomSerializer,
+            400: ErrorResponseSerializer,
+            404: ErrorResponseSerializer,
+        },
+    )
     def put(self, request, pk, *args, **kwargs):
         """
         Handle PUT requests to update a specific classroom.
@@ -180,6 +196,12 @@ class ClassroomRetrieveUpdateDestroyAPIView(APIView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        responses={
+            204: None,
+            404: ErrorResponseSerializer,
+        },
+    )
     def delete(self, request, pk, *args, **kwargs):
         """
         Handle DELETE requests to delete a specific classroom.
