@@ -1,4 +1,5 @@
 from django.utils.translation import gettext_lazy as _
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -6,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.views import APIView
 
+from authuser.serializers import ErrorResponseSerializer
 from classroom.permissions import IsClassroomMember, IsStudent
 from quiz.models import StudentQuiz, Quiz
 from quiz.serializers import StudentAnswerSerializer, StudentQuizSerializer
@@ -27,6 +29,14 @@ class StudentAnswerCreateAPIView(APIView):
     """
     permission_classes = [IsAuthenticated, IsClassroomMember, IsStudent]
 
+    @extend_schema(
+        request=StudentAnswerSerializer,
+        responses={
+            201: StudentAnswerSerializer,
+            400: ErrorResponseSerializer,
+        },
+        description="Create a new student answer for a specific quiz."
+    )
     def post(self, request, *args, **kwargs):
         """
         Handles POST requests to create a new student answer.

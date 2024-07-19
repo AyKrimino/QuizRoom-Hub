@@ -1,16 +1,18 @@
 from django.contrib.auth import get_user_model
 from django.http import Http404
 from django_filters import rest_framework as filters
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .filters import TeacherProfileFilter, StudentProfileFilter
-from .models import TeacherProfile, StudentProfile
-from .permissions import IsProfileOwnerOrReadOnly
-from .serializers import TeacherProfileSerializer, StudentProfileSerializer
+from account.filters import TeacherProfileFilter, StudentProfileFilter
+from account.models import TeacherProfile, StudentProfile
+from account.permissions import IsProfileOwnerOrReadOnly
+from account.serializers import TeacherProfileSerializer, StudentProfileSerializer
+from authuser.serializers import ErrorResponseSerializer
 
 User = get_user_model()
 
@@ -34,12 +36,26 @@ class TeacherProfileRetrieveUpdateDestroyAPIView(APIView):
         except TeacherProfile.DoesNotExist:
             raise Http404
 
+    @extend_schema(
+        responses={
+            200: TeacherProfileSerializer,
+            404: ErrorResponseSerializer,
+        },
+    )
     def get(self, request, pk, *args, **kwargs):
         self.check_permissions(request)
         teacher_profile = self.get_object(pk)
         serializer = TeacherProfileSerializer(teacher_profile)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        request=TeacherProfileSerializer,
+        responses={
+            200: TeacherProfileSerializer,
+            400: ErrorResponseSerializer,
+            404: ErrorResponseSerializer,
+        },
+    )
     def put(self, request, pk, *args, **kwargs):
         self.check_permissions(request)
         teacher_profile = self.get_object(pk)
@@ -48,6 +64,12 @@ class TeacherProfileRetrieveUpdateDestroyAPIView(APIView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        responses={
+            204: None,
+            404: ErrorResponseSerializer,
+        },
+    )
     def delete(self, request, pk, *args, **kwargs):
         self.check_permissions(request)
         teacher_profile = self.get_object(pk)
@@ -75,12 +97,26 @@ class StudentProfileRetrieveUpdateDestroyAPIView(APIView):
         except StudentProfile.DoesNotExist:
             raise Http404
 
+    @extend_schema(
+        responses={
+            200: StudentProfileSerializer,
+            404: ErrorResponseSerializer,
+        },
+    )
     def get(self, request, pk, *args, **kwargs):
         self.check_permissions(request)
         student_profile = self.get_object(pk)
         serializer = StudentProfileSerializer(student_profile)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        request=StudentProfileSerializer,
+        responses={
+            200: StudentProfileSerializer,
+            400: ErrorResponseSerializer,
+            404: ErrorResponseSerializer,
+        },
+    )
     def put(self, request, pk, *args, **kwargs):
         self.check_permissions(request)
         student_profile = self.get_object(pk)
@@ -89,6 +125,12 @@ class StudentProfileRetrieveUpdateDestroyAPIView(APIView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        responses={
+            204: None,
+            404: ErrorResponseSerializer,
+        },
+    )
     def delete(self, request, pk, *args, **kwargs):
         self.check_permissions(request)
         student_profile = self.get_object(pk)

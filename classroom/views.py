@@ -1,14 +1,14 @@
 from django.http import Http404
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.views import APIView
-from drf_spectacular.utils import extend_schema
 
-from authuser.serializers import ErrorResponseSerializer
 from account.models import StudentProfile, TeacherProfile
+from authuser.serializers import ErrorResponseSerializer
 from .models import Classroom, StudentClassroom
 from .permissions import (IsClassroomMember, IsClassroomOwner, IsTeacher, IsStudentOrTeacher, )
 from .serializers import ClassroomSerializer, StudentClassroomSerializer
@@ -291,6 +291,14 @@ class StudentClassroomCreateAPIView(APIView):
     """
     permission_classes = [IsAuthenticated, IsStudentOrTeacher]
 
+    @extend_schema(
+        request=StudentClassroomSerializer,
+        responses={
+            201: StudentClassroomSerializer,
+            400: ErrorResponseSerializer,
+            404: ErrorResponseSerializer,
+        },
+    )
     def post(self, request, *args, **kwargs):
         """
         Handle POST requests to create a student classroom relationship.
@@ -399,6 +407,12 @@ class StudentClassroomRetrieveDestroyAPIView(APIView):
         except (StudentProfile.DoesNotExist, Classroom.DoesNotExist, StudentClassroom.DoesNotExist):
             raise Http404
 
+    @extend_schema(
+        responses={
+            200: StudentClassroomSerializer,
+            404: ErrorResponseSerializer,
+        },
+    )
     def get(self, request, student_id, classroom_id, *args, **kwargs):
         """
         Handle GET requests to retrieve details of the student classroom relationship.
@@ -417,6 +431,12 @@ class StudentClassroomRetrieveDestroyAPIView(APIView):
         serializer = StudentClassroomSerializer(student_classroom)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        responses={
+            204: None,
+            404: ErrorResponseSerializer,
+        },
+    )
     def delete(self, request, student_id, classroom_id, *args, **kwargs):
         """
         Handle DELETE requests to delete the student classroom relationship.

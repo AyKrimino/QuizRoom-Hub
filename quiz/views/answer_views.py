@@ -1,10 +1,12 @@
 from django.http import Http404
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from authuser.serializers import ErrorResponseSerializer
 from classroom.permissions import IsClassroomOwner
 from quiz.models import Answer, Question
 from quiz.serializers import AnswerSerializer
@@ -158,6 +160,12 @@ class AnswerRetrieveUpdateDestroyAPIView(APIView):
         except Answer.DoesNotExist:
             raise Http404
 
+    @extend_schema(
+        responses={
+            200: AnswerSerializer,
+            404: ErrorResponseSerializer,
+        },
+    )
     def get(self, request, quiz_id, question_id, answer_id, *args, **kwargs):
         """
         Handles GET requests to retrieve the answer details.
@@ -176,6 +184,14 @@ class AnswerRetrieveUpdateDestroyAPIView(APIView):
         serializer = AnswerSerializer(answer, context={"quiz_id": quiz_id, "question_id": question_id})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        request=AnswerSerializer,
+        responses={
+            200: AnswerSerializer,
+            400: ErrorResponseSerializer,
+            404: ErrorResponseSerializer,
+        },
+    )
     def put(self, request, quiz_id, question_id, answer_id, *args, **kwargs):
         """
         Handles PUT requests to update the answer details.
@@ -197,6 +213,12 @@ class AnswerRetrieveUpdateDestroyAPIView(APIView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        responses={
+            204: None,
+            404: ErrorResponseSerializer,
+        },
+    )
     def delete(self, request, quiz_id, question_id, answer_id, *args, **kwargs):
         """
         Handles DELETE requests to delete the answer.

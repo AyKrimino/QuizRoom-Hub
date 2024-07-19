@@ -1,5 +1,6 @@
 from django.http import Http404
 from django.utils.translation import gettext_lazy as _
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
@@ -8,6 +9,7 @@ from rest_framework.serializers import ValidationError
 from rest_framework.views import APIView
 
 from account.models import TeacherProfile
+from authuser.serializers import ErrorResponseSerializer
 from classroom.models import Classroom
 from classroom.permissions import IsClassroomOwner, IsTeacher, IsClassroomMember
 from quiz.models import Quiz
@@ -154,6 +156,12 @@ class QuizRetrieveUpdateDestroyAPIView(APIView):
         except Quiz.DoesNotExist:
             raise Http404
 
+    @extend_schema(
+        responses={
+            200: QuizSerializer,
+            404: ErrorResponseSerializer,
+        },
+    )
     def get(self, request, quiz_id, *args, **kwargs):
         """
         Handles GET requests to retrieve the quiz details.
@@ -170,6 +178,14 @@ class QuizRetrieveUpdateDestroyAPIView(APIView):
         serializer = QuizSerializer(quiz)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        request=QuizSerializer,
+        responses={
+            200: QuizSerializer,
+            400: ErrorResponseSerializer,
+            404: ErrorResponseSerializer,
+        },
+    )
     def put(self, request, quiz_id, *args, **kwargs):
         """
         Handles PUT requests to update the quiz details.
@@ -188,6 +204,12 @@ class QuizRetrieveUpdateDestroyAPIView(APIView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        responses={
+            204: None,
+            404: ErrorResponseSerializer,
+        },
+    )
     def delete(self, request, quiz_id, *args, **kwargs):
         """
         Handles DELETE requests to delete the quiz.
