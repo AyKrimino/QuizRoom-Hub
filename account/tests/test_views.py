@@ -1,6 +1,6 @@
 from rest_framework import status
 
-from .test_setup import TestSetup
+from account.tests.test_setup import TestSetup
 
 
 class TeacherProfileListAPIViewTests(TestSetup):

@@ -1,5 +1,6 @@
-from classroom.tests.test_setup import TestSetUp
 from django.urls import reverse
+
+from classroom.tests.test_setup import TestSetUp
 from post.models import CoursePost, Comment
 
 

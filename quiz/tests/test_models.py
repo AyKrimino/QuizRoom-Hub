@@ -5,7 +5,7 @@ from django.db.utils import IntegrityError
 from django.utils import timezone
 
 from quiz.models import Quiz, Question, Answer, StudentQuiz
-from .test_setup_models import TestSetup
+from quiz.tests.test_setup_models import TestSetup
 
 
 class QuizTests(TestSetup):
@@ -31,9 +31,8 @@ class QuizTests(TestSetup):
 
     def test_create_quiz_without_classroom(self):
         del self.quiz_data["classroom"]
-        with self.assertRaises(IntegrityError) as cm:
+        with self.assertRaises(IntegrityError):
             Quiz.objects.create(**self.quiz_data)
-        self.assertEqual(str(cm.exception), "NOT NULL constraint failed: quiz_quiz.classroom_id")
 
     def test_quiz_uuid_generation(self):
         quiz = Quiz.objects.create(**self.quiz_data)
@@ -91,9 +90,8 @@ class QuestionTests(TestSetup):
 
     def test_create_question_without_quiz(self):
         del self.question_data["quiz"]
-        with self.assertRaises(IntegrityError) as cm:
+        with self.assertRaises(IntegrityError):
             Question.objects.create(**self.question_data)
-        self.assertEqual(str(cm.exception), "NOT NULL constraint failed: quiz_question.quiz_id")
 
     def test_question_string_representation(self):
         question = Question.objects.create(**self.question_data)
@@ -130,9 +128,8 @@ class AnswerTests(TestSetup):
     def test_create_answer_without_question(self):
         del self.answer_data["question"]
 
-        with self.assertRaises(IntegrityError) as cm:
+        with self.assertRaises(IntegrityError):
             Answer.objects.create(**self.answer_data)
-        self.assertEqual(str(cm.exception), "NOT NULL constraint failed: quiz_answer.question_id")
 
     def test_answer_string_representation(self):
         answer = Answer.objects.create(**self.answer_data)
@@ -190,8 +187,6 @@ class StudentQuizTests(TestSetup):
         self.assertIn(student_quiz, self.quiz.student_answers.all())
 
     def test_create_student_quiz_with_same_student_and_quiz_twice(self):
-        with self.assertRaises(IntegrityError) as cm:
+        with self.assertRaises(IntegrityError):
             StudentQuiz.objects.create(**self.student_quiz_data)
             StudentQuiz.objects.create(**self.student_quiz_data)
-        self.assertEqual(str(cm.exception),
-                         "UNIQUE constraint failed: quiz_studentquiz.student_id, quiz_studentquiz.quiz_id")

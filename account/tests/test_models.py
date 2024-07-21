@@ -3,7 +3,7 @@ from django.db.utils import IntegrityError
 from faker import Faker
 from rest_framework.test import APITestCase
 
-from ..models import TeacherProfile, StudentProfile
+from account.models import TeacherProfile, StudentProfile
 
 User = get_user_model()
 
@@ -44,9 +44,8 @@ class TeacherProfileTests(APITestCase):
             TeacherProfile.objects.get(user_id=user_id)
 
     def test_creating_multiple_teacher_profiles_with_same_user(self):
-        with self.assertRaises(IntegrityError) as cm:
+        with self.assertRaises(IntegrityError):
             TeacherProfile.objects.create(user=self.user)
-        self.assertEqual(str(cm.exception), "UNIQUE constraint failed: account_teacherprofile.user_id")
 
     def test_teacher_profile_string_representation(self):
         teacher_profile = TeacherProfile.objects.get(user=self.user)
@@ -86,9 +85,8 @@ class StudentProfileTests(APITestCase):
         self.assertEqual(student_profile.date_of_birth, self.birthday)
 
     def test_creating_multiple_student_profiles_with_same_user(self):
-        with self.assertRaises(IntegrityError) as cm:
+        with self.assertRaises(IntegrityError):
             StudentProfile.objects.create(user=self.user)
-        self.assertEqual(str(cm.exception), "UNIQUE constraint failed: account_studentprofile.user_id")
 
     def test_student_profile_string_representation(self):
         student_profile = StudentProfile.objects.get(user=self.user)

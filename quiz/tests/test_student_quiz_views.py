@@ -1,5 +1,6 @@
-from quiz.tests.test_setup_views import QuizTestSetup
 from rest_framework import status
+
+from quiz.tests.test_setup_views import QuizTestSetup
 
 
 class StudentAnswerCreateAPIViewTests(QuizTestSetup):
@@ -79,6 +80,3 @@ class StudentQuizListAPIViewTests(QuizTestSetup):
                                             headers={"Authorization": f"Bearer {self.teacher2_access_token}"})
         self.assertEqual(student2_response.status_code, status.HTTP_200_OK)
         self.assertEqual(teacher2_response.status_code, status.HTTP_200_OK)
-
-
-

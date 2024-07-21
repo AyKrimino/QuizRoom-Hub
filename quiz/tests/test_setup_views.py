@@ -83,7 +83,7 @@ class QuizTestSetup(TestSetUp):
         )
 
         self.student_quiz = StudentQuiz.objects.create(
-            student=self.student2_profile,
+            student=self.student_profile,
             quiz=self.quiz,
             mark=Decimal('100.00'),
         )

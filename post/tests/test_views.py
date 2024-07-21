@@ -1,5 +1,6 @@
-from post.tests.test_views_setup import TestSetup
 from rest_framework import status
+
+from post.tests.test_views_setup import TestSetup
 
 
 class CoursePostCreateAPIViewTests(TestSetup):

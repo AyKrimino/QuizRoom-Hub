@@ -1,7 +1,8 @@
-from django.utils.translation import gettext_lazy as _
-from django.db.utils import IntegrityError
-from rest_framework import serializers
 from decimal import Decimal
+
+from django.db.utils import IntegrityError
+from django.utils.translation import gettext_lazy as _
+from rest_framework import serializers
 
 from classroom.models import Classroom
 from classroom.serializers import StudentProfileSerializerForClassroom
@@ -214,9 +215,6 @@ class StudentQuizSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(_("Quiz has no questions."))
 
         mark = Decimal((correct_answers / total_questions) * 100).quantize(Decimal('0.00'))
-
-        import pdb
-        pdb.set_trace()
 
         student_quiz = StudentQuiz.objects.create(
             student=student,

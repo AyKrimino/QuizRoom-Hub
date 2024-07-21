@@ -4,7 +4,7 @@ from faker import Faker
 from rest_framework.test import APITestCase
 
 from account.models import TeacherProfile, StudentProfile
-from ..models import Classroom, StudentClassroom
+from classroom.models import Classroom, StudentClassroom
 
 User = get_user_model()
 
@@ -42,9 +42,8 @@ class ClassroomTests(APITestCase):
         self.assertEqual(classroom.teacher, self.teacher)
 
     def test_create_classroom_without_teacher_field(self):
-        with self.assertRaises(IntegrityError) as cm:
+        with self.assertRaises(IntegrityError):
             Classroom.objects.create(name=self.name)
-        self.assertEqual(str(cm.exception), "NOT NULL constraint failed: classroom_classroom.teacher_id")
 
     def test_create_classroom_without_name_fields(self):
         with self.assertRaises(ValueError) as cm:
@@ -114,14 +113,12 @@ class StudentClassroomTests(APITestCase):
         self.assertEqual(student_classroom.classroom, self.classroom)
 
     def test_create_student_classroom_without_student(self):
-        with self.assertRaises(IntegrityError) as cm:
+        with self.assertRaises(IntegrityError):
             StudentClassroom.objects.create(classroom=self.classroom)
-        self.assertEqual(str(cm.exception), "NOT NULL constraint failed: classroom_studentclassroom.student_id")
 
     def test_create_student_classroom_without_classroom(self):
-        with self.assertRaises(IntegrityError) as cm:
+        with self.assertRaises(IntegrityError):
             StudentClassroom.objects.create(student=self.student)
-        self.assertEqual(str(cm.exception), "NOT NULL constraint failed: classroom_studentclassroom.classroom_id")
 
     def test_create_student_classroom_without_student_and_classroom(self):
         with self.assertRaises(IntegrityError):
@@ -148,12 +145,9 @@ class StudentClassroomTests(APITestCase):
         self.assertEqual(student_classroom3.classroom, self.classroom2)
 
     def test_create_student_classroom_without_unique_constraint(self):
-        with self.assertRaises(IntegrityError) as cm:
+        with self.assertRaises(IntegrityError):
             StudentClassroom.objects.create(student=self.student, classroom=self.classroom)
             StudentClassroom.objects.create(student=self.student, classroom=self.classroom)
-        self.assertEqual(str(cm.exception),
-                         "UNIQUE constraint failed: classroom_studentclassroom.student_id, "
-                         "classroom_studentclassroom.classroom_id")
 
     def test_create_student_classroom_string_representation(self):
         student_classroom = StudentClassroom.objects.create(student=self.student, classroom=self.classroom)

@@ -1,7 +1,7 @@
 from rest_framework import status
 
-from .test_setup import TestSetUp
-from ..models import Classroom, StudentClassroom
+from classroom.models import Classroom, StudentClassroom
+from classroom.tests.test_setup import TestSetUp
 
 
 class ClassroomCreateAPIViewTests(TestSetUp):

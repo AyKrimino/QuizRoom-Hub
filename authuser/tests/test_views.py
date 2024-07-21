@@ -1,6 +1,6 @@
 from rest_framework import status
 
-from .test_setup import TestSetup
+from authuser.tests.test_setup import TestSetup
 
 
 class RegisterUserViewTests(TestSetup):

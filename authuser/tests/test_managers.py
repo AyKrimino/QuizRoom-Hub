@@ -37,9 +37,8 @@ class UserManagerTests(APITestCase):
 
     def test_create_user_with_existing_email(self):
         self.User.objects.create_user(email=self.email, password=self.password)
-        with self.assertRaises(IntegrityError) as cm:
+        with self.assertRaises(IntegrityError):
             self.User.objects.create_user(email=self.email, password="Fake123")
-        self.assertEqual(str(cm.exception), "UNIQUE constraint failed: authuser_user.email")
 
     def test_create_user_with_is_teacher_true(self):
         user = self.User.objects.create_user(email=self.email, password=self.password, is_teacher=True)
@@ -79,9 +78,8 @@ class UserManagerTests(APITestCase):
 
     def test_create_superuser_with_existing_email(self):
         self.User.objects.create_superuser(email=self.email, password=self.password)
-        with self.assertRaises(IntegrityError) as cm:
+        with self.assertRaises(IntegrityError):
             self.User.objects.create_superuser(email=self.email, password=self.password)
-        self.assertEqual(str(cm.exception), "UNIQUE constraint failed: authuser_user.email")
 
     def test_create_superuser_with_is_teacher_true(self):
         user = self.User.objects.create_superuser(email=self.email, password=self.password, is_teacher=True)

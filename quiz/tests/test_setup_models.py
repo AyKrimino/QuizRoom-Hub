@@ -4,7 +4,7 @@ from rest_framework.test import APITestCase
 
 from account.models import TeacherProfile, StudentProfile
 from classroom.models import Classroom
-from quiz.models import Quiz, Question, Answer
+from quiz.models import Quiz, Question
 
 User = get_user_model()
 

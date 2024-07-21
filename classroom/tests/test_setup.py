@@ -1,6 +1,7 @@
-from account.tests.test_setup import TestSetup
 from django.urls import reverse
-from ..models import Classroom, StudentClassroom
+
+from account.tests.test_setup import TestSetup
+from classroom.models import Classroom, StudentClassroom
 
 
 class TestSetUp(TestSetup):
